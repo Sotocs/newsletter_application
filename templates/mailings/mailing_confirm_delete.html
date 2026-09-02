@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление рассылки{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+
+                <h1 class="h4 mb-3">
+                    Удалить рассылку?
+                </h1>
+
+                <p class="text-muted">
+                    Вы действительно хотите удалить
+                    рассылку #{{ mailing.pk }}?
+                </p>
+
+                <p>
+                    <strong>
+                        {{ mailing.message.subject }}
+                    </strong>
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        Да, удалить
+                    </button>
+
+                    <a
+                        href="{% url 'mailing_detail' mailing.pk %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Отмена
+                    </a>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Сообщения{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h1 class="mb-1">Сообщения</h1>
+
+        <p class="text-muted mb-0">
+            Шаблоны писем для рассылок
+        </p>
+    </div>
+
+    <a
+        href="{% url 'message_create' %}"
+        class="btn btn-primary"
+    >
+        + Создать сообщение
+    </a>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        {% if messages_list %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Тема</th>
+                            <th>Текст</th>
+                            <th class="text-end">Действия</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for message in messages_list %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ message.subject }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <span class="text-muted">
+                                        {{ message.body|truncatechars:100 }}
+                                    </span>
+                                </td>
+
+                                <td class="text-end text-nowrap">
+
+                                    <a
+                                        href="{% url 'message_update' message.pk %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        Изменить
+                                    </a>
+
+                                    <a
+                                        href="{% url 'message_delete' message.pk %}"
+                                        class="btn btn-sm btn-outline-danger"
+                                    >
+                                        Удалить
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <h4>Сообщений пока нет</h4>
+
+                <p class="text-muted">
+                    Создайте первое сообщение для рассылки.
+                </p>
+
+                <a
+                    href="{% url 'message_create' %}"
+                    class="btn btn-primary"
+                >
+                    Создать сообщение
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

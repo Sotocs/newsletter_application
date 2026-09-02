@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Рассылки{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Рассылки</h1>
+        <p class="text-muted mb-0">
+            Управление вашими рассылками
+        </p>
+    </div>
+
+    <a
+        href="{% url 'mailing_create' %}"
+        class="btn btn-primary"
+    >
+        Создать рассылку
+    </a>
+</div>
+
+{% if mailings %}
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle bg-white shadow-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Сообщение</th>
+                <th>Начало</th>
+                <th>Окончание</th>
+                <th>Статус</th>
+                <th>Получатели</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for mailing in mailings %}
+            <tr>
+                <td>{{ mailing.pk }}</td>
+
+                <td>
+                    {{ mailing.message.subject }}
+                </td>
+
+                <td>
+                    {{ mailing.start_time|date:"d.m.Y H:i" }}
+                </td>
+
+                <td>
+                    {{ mailing.end_time|date:"d.m.Y H:i" }}
+                </td>
+
+                <td>
+                    {% if mailing.status == "Создана" %}
+                        <span class="badge text-bg-secondary">
+                            {{ mailing.status }}
+                        </span>
+                    {% elif mailing.status == "Запущена" %}
+                        <span class="badge text-bg-success">
+                            {{ mailing.status }}
+                        </span>
+                    {% else %}
+                        <span class="badge text-bg-dark">
+                            {{ mailing.status }}
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ mailing.recipients.count }}
+                </td>
+
+                <td>
+                    <a
+                        href="{% url 'mailing_detail' mailing.pk %}"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        Открыть
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+        <h2 class="h4">
+            Рассылок пока нет
+        </h2>
+
+        <p class="text-muted">
+            Создайте первую рассылку.
+        </p>
+
+        <a
+            href="{% url 'mailing_create' %}"
+            class="btn btn-primary"
+        >
+            Создать рассылку
+        </a>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

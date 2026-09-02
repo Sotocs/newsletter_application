@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Рассылка #{{ mailing.pk }}{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Рассылка #{{ mailing.pk }}</h1>
+        <p class="text-muted mb-0">
+            Информация о рассылке
+        </p>
+    </div>
+
+    {% if mailing.status == "Создана" %}
+        <span class="badge text-bg-secondary fs-6">
+            {{ mailing.status }}
+        </span>
+    {% elif mailing.status == "Запущена" %}
+        <span class="badge text-bg-success fs-6">
+            {{ mailing.status }}
+        </span>
+    {% else %}
+        <span class="badge text-bg-dark fs-6">
+            {{ mailing.status }}
+        </span>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <h2 class="h4 mb-4">
+            Параметры рассылки
+        </h2>
+
+        <dl class="row">
+
+            <dt class="col-sm-4">
+                Начало
+            </dt>
+
+            <dd class="col-sm-8">
+                {{ mailing.start_time|date:"d.m.Y H:i" }}
+            </dd>
+
+            <dt class="col-sm-4">
+                Окончание
+            </dt>
+
+            <dd class="col-sm-8">
+                {{ mailing.end_time|date:"d.m.Y H:i" }}
+            </dd>
+
+            <dt class="col-sm-4">
+                Сообщение
+            </dt>
+
+            <dd class="col-sm-8">
+                <strong>
+                    {{ mailing.message.subject }}
+                </strong>
+
+                <div class="text-muted mt-2">
+                    {{ mailing.message.body|linebreaks }}
+                </div>
+            </dd>
+
+        </dl>
+
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <h2 class="h4 mb-3">
+            Получатели
+        </h2>
+
+        {% if mailing.recipients.count %}
+            <ul class="list-group">
+                {% for recipient in mailing.recipients.all %}
+                    <li class="list-group-item">
+                        <strong>
+                            {{ recipient.full_name }}
+                        </strong>
+                        <br>
+                        <span class="text-muted">
+                            {{ recipient.email }}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">
+                Получатели не выбраны.
+            </p>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+
+    <a
+        href="{% url 'mailing_update' mailing.pk %}"
+        class="btn btn-outline-primary"
+    >
+        Редактировать
+    </a>
+
+    <a
+        href="{% url 'mailing_delete' mailing.pk %}"
+        class="btn btn-outline-danger"
+    >
+        Удалить
+    </a>
+
+    <form
+        method="post"
+        action="{% url 'mailing_send' mailing.pk %}"
+    >
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="btn btn-success"
+        >
+            Запустить рассылку
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}
