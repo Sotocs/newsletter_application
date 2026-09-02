@@ -95,6 +95,98 @@
     </div>
 
 </div>
+{% if user.is_authenticated and user.role == "MANAGER" %}
+
+<div class="mt-5">
+
+    <h2 class="h4 mb-4">
+        Статистика отправок (Статистика для Менеджера)
+    </h2>
+
+    <div class="row g-4">
+
+        <!-- Всего попыток -->
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Всего попыток отправки
+                    </div>
+
+                    <div class="display-5 fw-bold">
+                        {{ total_attempts }}
+                    </div>
+
+                    <p class="text-muted mt-3 mb-0">
+                        Все выполненные попытки отправки
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Успешные -->
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Успешные отправки
+                    </div>
+
+                    <div class="display-5 fw-bold text-success">
+                        {{ successful_attempts }}
+                    </div>
+
+                    <p class="text-muted mt-3 mb-0">
+                        Письма успешно отправлены
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Ошибки -->
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted mb-2">
+                        Неуспешные отправки
+                    </div>
+
+                    <div class="display-5 fw-bold text-danger">
+                        {{ failed_attempts }}
+                    </div>
+
+                    <p class="text-muted mt-3 mb-0">
+                        Письма не удалось отправить
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
 
 
 {% if user.is_authenticated %}

@@ -6,9 +6,9 @@ from django.views import View
 
 from users.mixins import ManagerRequiredMixin
 from .services import send_mailing
-from .models import Mailing, Message, Recipient
 from django.utils import timezone
 from .forms import MailingForm, MessageForm, RecipientForm
+from .models import Mailing, MailingAttempt, Message, Recipient
 
 class RecipientListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -276,11 +276,22 @@ class HomeView(View):
         active_mailings = Mailing.objects.filter(
             start_time__lte=now,
             end_time__gte=now,
+            is_active=True,
         ).count()
 
         total_recipients = Recipient.objects.values(
             "email"
         ).distinct().count()
+
+        total_attempts = MailingAttempt.objects.count()
+
+        successful_attempts = MailingAttempt.objects.filter(
+            status=MailingAttempt.STATUS_SUCCESS,
+        ).count()
+
+        failed_attempts = MailingAttempt.objects.filter(
+            status=MailingAttempt.STATUS_FAILED,
+        ).count()
 
         return render(
             request,
@@ -289,6 +300,9 @@ class HomeView(View):
                 "total_mailings": total_mailings,
                 "active_mailings": active_mailings,
                 "total_recipients": total_recipients,
+                "total_attempts": total_attempts,
+                "successful_attempts": successful_attempts,
+                "failed_attempts": failed_attempts,
             },
         )
 
