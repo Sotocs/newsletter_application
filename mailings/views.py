@@ -431,3 +431,23 @@ class MailingDeleteView(LoginRequiredMixin, View):
         mailing.delete()
 
         return redirect("mailing_list")
+
+class MailingAttemptListView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        mailing = get_object_or_404(
+            Mailing,
+            pk=pk,
+            owner=request.user,
+        )
+
+        attempts = mailing.attempts.all().order_by("-attempt_time")
+
+        return render(
+            request,
+            "mailings/mailing_attempt_list.html",
+            {
+                "mailing": mailing,
+                "attempts": attempts,
+            },
+        )
+

@@ -60,7 +60,16 @@
                             Рассылки
                         </a>
                     </li>
-
+                {% if user.is_authenticated and user.role == "MANAGER" %}
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{% url 'manager_user_list' %}"
+                        >
+                            Управление
+                        </a>
+                    </li>
+                {% endif %}
                 {% endif %}
 
             </ul>
@@ -76,12 +85,20 @@
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="/accounts/logout/"
-                        >
-                            Выйти
-                        </a>
+                        <form
+                    method="post"
+                    action="{% url 'logout' %}"
+                    class="d-inline"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-link nav-link"
+                    >
+                        Выйти
+                    </button>
+                </form>
                     </li>
 
                 {% else %}
@@ -98,7 +115,7 @@
                     <li class="nav-item">
                         <a
                             class="nav-link"
-                            href="#"
+                            href="/accounts/register/"
                         >
                             Регистрация
                         </a>

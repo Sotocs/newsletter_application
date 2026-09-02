@@ -129,8 +129,13 @@
         >
             Запустить рассылку
         </button>
+    <a
+        href="{% url 'mailing_attempt_list' mailing.pk %}"
+        class="btn btn-info"
+    >
+        История отправки
+    </a>
     </form>
-
 </div>
 
 {% endblock %}

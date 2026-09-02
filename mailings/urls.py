@@ -16,6 +16,7 @@ from .views import (
     RecipientDeleteView,
     RecipientListView,
     RecipientUpdateView,
+    MailingAttemptListView,
 )
 
 urlpatterns = [
@@ -23,6 +24,11 @@ urlpatterns = [
         "",
         HomeView.as_view(),
         name="home",
+    ),
+    path(
+        "mailings/<int:pk>/attempts/",
+        MailingAttemptListView.as_view(),
+        name="mailing_attempt_list",
     ),
     path(
         "mailings/",
