@@ -9,7 +9,6 @@ from .views import (
     UserBlockView,
 )
 
-
 urlpatterns = [
     path(
         "login/",
@@ -41,7 +40,6 @@ urlpatterns = [
         ActivateAccountView.as_view(),
         name="activate",
     ),
-
     # Восстановление пароля
     path(
         "password-reset/",
@@ -53,7 +51,6 @@ urlpatterns = [
         ),
         name="password_reset",
     ),
-
     path(
         "password-reset/done/",
         auth_views.PasswordResetDoneView.as_view(
@@ -61,7 +58,6 @@ urlpatterns = [
         ),
         name="password_reset_done",
     ),
-
     path(
         "password-reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(
@@ -70,7 +66,6 @@ urlpatterns = [
         ),
         name="password_reset_confirm",
     ),
-
     path(
         "password-reset/complete/",
         auth_views.PasswordResetCompleteView.as_view(

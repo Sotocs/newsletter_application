@@ -19,7 +19,8 @@ class Recipient(models.Model):
 
     class Meta:
         verbose_name = "Получатель"
-        verbose_name_plural = ("Получатели")
+        verbose_name_plural = "Получатели"
+
 
 class Message(models.Model):
     owner = models.ForeignKey(
@@ -35,7 +36,8 @@ class Message(models.Model):
 
     class Meta:
         verbose_name = "Письмо"
-        verbose_name_plural = ("Письма")
+        verbose_name_plural = "Письма"
+
 
 class Mailing(models.Model):
     owner = models.ForeignKey(
@@ -63,9 +65,7 @@ class Mailing(models.Model):
             errors["start_time"] = "Время начала не может быть в прошлом."
 
         if self.start_time >= self.end_time:
-            errors["end_time"] = (
-                "Время окончания должно быть позже времени начала."
-            )
+            errors["end_time"] = "Время окончания должно быть позже времени начала."
 
         if errors:
             raise ValidationError(errors)
@@ -87,7 +87,8 @@ class Mailing(models.Model):
 
     class Meta:
         verbose_name = "Рассылка"
-        verbose_name_plural = ("Рассылки")
+        verbose_name_plural = "Рассылки"
+
 
 class MailingAttempt(models.Model):
     STATUS_SUCCESS = "Успешно"
@@ -118,4 +119,4 @@ class MailingAttempt(models.Model):
 
     class Meta:
         verbose_name = "Попытка рассылки"
-        verbose_name_plural = ("Попытки рассылок")
+        verbose_name_plural = "Попытки рассылок"

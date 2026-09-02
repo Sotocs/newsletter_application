@@ -8,14 +8,10 @@ def send_mailing(mailing: Mailing) -> None:
     now = timezone.now()
 
     if not mailing.is_active:
-        raise ValueError(
-            "Эта рассылка отключена менеджером."
-        )
+        raise ValueError("Эта рассылка отключена менеджером.")
 
     if not mailing.start_time <= now <= mailing.end_time:
-        raise ValueError(
-            "Рассылку можно запустить только в разрешённый период."
-        )
+        raise ValueError("Рассылку можно запустить только в разрешённый период.")
 
     attempts = []
 

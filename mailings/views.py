@@ -12,15 +12,14 @@ from .models import Mailing, MailingAttempt, Message, Recipient
 from django.views.decorators.cache import cache_control
 from django.utils.decorators import method_decorator
 
+
 def clear_home_statistics_cache():
     cache.delete("home_statistics")
 
 
 class RecipientListView(LoginRequiredMixin, View):
     def get(self, request):
-        recipients = Recipient.objects.filter(
-            owner=request.user
-        )
+        recipients = Recipient.objects.filter(owner=request.user)
 
         return render(
             request,
@@ -171,17 +170,17 @@ class MailingSendView(LoginRequiredMixin, View):
             pk=mailing.pk,
         )
 
+
 class MessageListView(LoginRequiredMixin, View):
     def get(self, request):
-        messages_list = Message.objects.filter(
-            owner=request.user
-        )
+        messages_list = Message.objects.filter(owner=request.user)
 
         return render(
             request,
             "mailings/message_list.html",
             {"messages_list": messages_list},
         )
+
 
 class MessageCreateView(LoginRequiredMixin, View):
     def get(self, request):
@@ -208,6 +207,7 @@ class MessageCreateView(LoginRequiredMixin, View):
             "mailings/message_form.html",
             {"form": form},
         )
+
 
 class MessageUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk):
@@ -254,6 +254,7 @@ class MessageUpdateView(LoginRequiredMixin, View):
             },
         )
 
+
 class MessageDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         message = get_object_or_404(
@@ -279,6 +280,7 @@ class MessageDeleteView(LoginRequiredMixin, View):
 
         return redirect("message_list")
 
+
 @method_decorator(
     cache_control(
         max_age=60,
@@ -302,9 +304,9 @@ class HomeView(View):
                     end_time__gte=now,
                     is_active=True,
                 ).count(),
-                "total_recipients": Recipient.objects.values(
-                    "email"
-                ).distinct().count(),
+                "total_recipients": Recipient.objects.values("email")
+                .distinct()
+                .count(),
                 "total_attempts": MailingAttempt.objects.count(),
                 "successful_attempts": MailingAttempt.objects.filter(
                     status=MailingAttempt.STATUS_SUCCESS,
@@ -326,12 +328,11 @@ class HomeView(View):
             statistics,
         )
 
+
 class MailingListView(LoginRequiredMixin, View):
     def get(self, request):
-        mailings = (
-            Mailing.objects
-            .select_related("message", "owner")
-            .prefetch_related("recipients")
+        mailings = Mailing.objects.select_related("message", "owner").prefetch_related(
+            "recipients"
         )
 
         if request.user.role != User.Role.MANAGER:
@@ -344,6 +345,7 @@ class MailingListView(LoginRequiredMixin, View):
                 "mailings": mailings,
             },
         )
+
 
 class MailingCreateView(LoginRequiredMixin, View):
     def get(self, request):
@@ -384,19 +386,17 @@ class MailingCreateView(LoginRequiredMixin, View):
             },
         )
 
+
 class MailingDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         mailing = get_object_or_404(
-            Mailing.objects
-            .select_related("message", "owner")
-            .prefetch_related("recipients"),
+            Mailing.objects.select_related("message", "owner").prefetch_related(
+                "recipients"
+            ),
             pk=pk,
         )
 
-        if (
-            mailing.owner != request.user
-            and request.user.role != User.Role.MANAGER
-        ):
+        if mailing.owner != request.user and request.user.role != User.Role.MANAGER:
             from django.core.exceptions import PermissionDenied
 
             raise PermissionDenied
@@ -408,6 +408,7 @@ class MailingDetailView(LoginRequiredMixin, View):
                 "mailing": mailing,
             },
         )
+
 
 class MailingUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk):
@@ -463,6 +464,7 @@ class MailingUpdateView(LoginRequiredMixin, View):
             },
         )
 
+
 class MailingDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         mailing = get_object_or_404(
@@ -492,6 +494,7 @@ class MailingDeleteView(LoginRequiredMixin, View):
 
         return redirect("mailing_list")
 
+
 class MailingAttemptListView(LoginRequiredMixin, View):
     def get(self, request, pk):
         mailing = get_object_or_404(
@@ -510,6 +513,7 @@ class MailingAttemptListView(LoginRequiredMixin, View):
                 "attempts": attempts,
             },
         )
+
 
 class MailingDisableView(
     LoginRequiredMixin,

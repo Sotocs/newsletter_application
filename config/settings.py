@@ -9,13 +9,14 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / ".env")
 # SECURITY WARNING: don't run with debug turned on in production!
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
@@ -38,8 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'users',
-    'mailings',
+    "users",
+    "mailings",
 ]
 
 MIDDLEWARE = [
@@ -87,7 +88,7 @@ DATABASES = {
 # Для отладки: выводим, что реально прочиталось
 print("DB_NAME:", os.getenv("DB_NAME"))
 print("DB_USER:", os.getenv("DB_USER"))
-print("DB_PASSWORD:", '***')#os.getenv("DB_PASSWORD"))
+print("DB_PASSWORD:", "***")  # os.getenv("DB_PASSWORD"))
 print("DB_HOST:", os.getenv("DB_HOST"))
 print("DB_PORT:", os.getenv("DB_PORT"))
 

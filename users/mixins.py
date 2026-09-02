@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from users.models import User
 
+
 class ManagerRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return (

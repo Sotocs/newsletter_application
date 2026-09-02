@@ -17,10 +17,12 @@ from django.views.generic import ListView
 from .mixins import ManagerRequiredMixin
 from .models import User
 
+
 class LoginView(auth_views.LoginView):
     template_name = "users/login.html"
     redirect_authenticated_user = True
     next_page = reverse_lazy("recipient_list")
+
 
 class RegistrationView(View):
     template_name = "users/register.html"
@@ -50,9 +52,7 @@ class RegistrationView(View):
             user.is_active = False
             user.save()
 
-            uid = urlsafe_base64_encode(
-                force_bytes(user.pk)
-            )
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
 
             token = account_activation_token.make_token(user)
 
@@ -90,14 +90,13 @@ class RegistrationView(View):
             {"form": form},
         )
 
+
 class ActivateAccountView(View):
     def get(self, request, uidb64, token):
         User = get_user_model()
 
         try:
-            uid = force_str(
-                urlsafe_base64_decode(uidb64)
-            )
+            uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (
             TypeError,
@@ -125,6 +124,7 @@ class ActivateAccountView(View):
             request,
             "users/activation_invalid.html",
         )
+
 
 class UserListView(LoginRequiredMixin, ManagerRequiredMixin, ListView):
     model = User
