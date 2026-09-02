@@ -1,13 +1,14 @@
+from users.models import User
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
+from users.mixins import ManagerRequiredMixin
 from .services import send_mailing
 from .models import Mailing, Message, Recipient
 from django.utils import timezone
 from .forms import MailingForm, MessageForm, RecipientForm
-
 
 class RecipientListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -128,6 +129,16 @@ class MailingSendView(LoginRequiredMixin, View):
             pk=pk,
             owner=request.user,
         )
+
+        if not mailing.is_active:
+            messages.error(
+                request,
+                "Эта рассылка отключена менеджером.",
+            )
+            return redirect(
+                "mailing_detail",
+                pk=mailing.pk,
+            )
 
         try:
             send_mailing(mailing)
@@ -285,10 +296,12 @@ class MailingListView(LoginRequiredMixin, View):
     def get(self, request):
         mailings = (
             Mailing.objects
-            .filter(owner=request.user)
-            .select_related("message")
+            .select_related("message", "owner")
             .prefetch_related("recipients")
         )
+
+        if request.user.role != User.Role.MANAGER:
+            mailings = mailings.filter(owner=request.user)
 
         return render(
             request,
@@ -339,11 +352,18 @@ class MailingDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         mailing = get_object_or_404(
             Mailing.objects
-            .select_related("message")
+            .select_related("message", "owner")
             .prefetch_related("recipients"),
             pk=pk,
-            owner=request.user,
         )
+
+        if (
+            mailing.owner != request.user
+            and request.user.role != User.Role.MANAGER
+        ):
+            from django.core.exceptions import PermissionDenied
+
+            raise PermissionDenied
 
         return render(
             request,
@@ -451,3 +471,32 @@ class MailingAttemptListView(LoginRequiredMixin, View):
             },
         )
 
+class MailingDisableView(
+    LoginRequiredMixin,
+    ManagerRequiredMixin,
+    View,
+):
+    def post(self, request, pk):
+        mailing = get_object_or_404(
+            Mailing,
+            pk=pk,
+        )
+
+        mailing.is_active = not mailing.is_active
+        mailing.save(update_fields=["is_active"])
+
+        if mailing.is_active:
+            messages.success(
+                request,
+                "Рассылка включена.",
+            )
+        else:
+            messages.success(
+                request,
+                "Рассылка отключена.",
+            )
+
+        return redirect(
+            "mailing_detail",
+            pk=mailing.pk,
+        )

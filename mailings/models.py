@@ -43,20 +43,18 @@ class Mailing(models.Model):
         on_delete=models.CASCADE,
         related_name="mailings",
     )
-
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-
     message = models.ForeignKey(
         Message,
         on_delete=models.CASCADE,
         related_name="mailings",
     )
-
     recipients = models.ManyToManyField(
         Recipient,
         related_name="mailings",
     )
+    is_active = models.BooleanField(default=True)
 
     def clean(self):
         errors = {}
@@ -76,6 +74,9 @@ class Mailing(models.Model):
     def status(self):
         now = timezone.now()
 
+        if not self.is_active:
+            return "Отключена"
+
         if now < self.start_time:
             return "Создана"
 
@@ -83,9 +84,6 @@ class Mailing(models.Model):
             return "Запущена"
 
         return "Завершена"
-
-    def __str__(self):
-        return f"Рассылка #{self.pk}"
 
     class Meta:
         verbose_name = "Рассылка"

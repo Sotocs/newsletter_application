@@ -136,6 +136,25 @@
         История отправки
     </a>
     </form>
+   {% if user.role == "MANAGER" %}
+    <form
+        method="post"
+        action="{% url 'mailing_disable' mailing.pk %}"
+        class="d-inline"
+    >
+        {% csrf_token %}
+
+        {% if mailing.is_active %}
+            <button type="submit" class="btn btn-danger">
+                Отключить рассылку
+            </button>
+        {% else %}
+            <button type="submit" class="btn btn-success">
+                Включить рассылку
+            </button>
+        {% endif %}
+    </form>
+{% endif %}
 </div>
 
 {% endblock %}

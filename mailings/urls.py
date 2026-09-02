@@ -16,7 +16,7 @@ from .views import (
     RecipientDeleteView,
     RecipientListView,
     RecipientUpdateView,
-    MailingAttemptListView,
+    MailingAttemptListView, MailingDisableView,
 )
 
 urlpatterns = [
@@ -53,7 +53,11 @@ urlpatterns = [
         MailingUpdateView.as_view(),
         name="mailing_update",
     ),
-
+    path(
+        "mailings/<int:pk>/disable/",
+        MailingDisableView.as_view(),
+        name="mailing_disable",
+    ),
     path(
         "mailings/<int:pk>/delete/",
         MailingDeleteView.as_view(),
