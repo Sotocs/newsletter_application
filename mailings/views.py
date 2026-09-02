@@ -3,12 +3,18 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-
+from django.core.cache import cache
 from users.mixins import ManagerRequiredMixin
 from .services import send_mailing
 from django.utils import timezone
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, MailingAttempt, Message, Recipient
+from django.views.decorators.cache import cache_control
+from django.utils.decorators import method_decorator
+
+def clear_home_statistics_cache():
+    cache.delete("home_statistics")
+
 
 class RecipientListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -40,6 +46,8 @@ class RecipientCreateView(LoginRequiredMixin, View):
             recipient = form.save(commit=False)
             recipient.owner = request.user
             recipient.save()
+
+            clear_home_statistics_cache()
 
             return redirect("recipient_list")
 
@@ -83,6 +91,7 @@ class RecipientUpdateView(LoginRequiredMixin, View):
 
         if form.is_valid():
             form.save()
+            clear_home_statistics_cache()
 
             return redirect("recipient_list")
 
@@ -119,6 +128,8 @@ class RecipientDeleteView(LoginRequiredMixin, View):
 
         recipient.delete()
 
+        clear_home_statistics_cache()
+
         return redirect("recipient_list")
 
 
@@ -142,6 +153,7 @@ class MailingSendView(LoginRequiredMixin, View):
 
         try:
             send_mailing(mailing)
+            clear_home_statistics_cache()
 
             messages.success(
                 request,
@@ -267,43 +279,51 @@ class MessageDeleteView(LoginRequiredMixin, View):
 
         return redirect("message_list")
 
+@method_decorator(
+    cache_control(
+        max_age=60,
+        private=True,
+    ),
+    name="dispatch",
+)
 class HomeView(View):
     def get(self, request):
-        now = timezone.now()
+        cache_key = "home_statistics"
 
-        total_mailings = Mailing.objects.count()
+        statistics = cache.get(cache_key)
 
-        active_mailings = Mailing.objects.filter(
-            start_time__lte=now,
-            end_time__gte=now,
-            is_active=True,
-        ).count()
+        if statistics is None:
+            now = timezone.now()
 
-        total_recipients = Recipient.objects.values(
-            "email"
-        ).distinct().count()
+            statistics = {
+                "total_mailings": Mailing.objects.count(),
+                "active_mailings": Mailing.objects.filter(
+                    start_time__lte=now,
+                    end_time__gte=now,
+                    is_active=True,
+                ).count(),
+                "total_recipients": Recipient.objects.values(
+                    "email"
+                ).distinct().count(),
+                "total_attempts": MailingAttempt.objects.count(),
+                "successful_attempts": MailingAttempt.objects.filter(
+                    status=MailingAttempt.STATUS_SUCCESS,
+                ).count(),
+                "failed_attempts": MailingAttempt.objects.filter(
+                    status=MailingAttempt.STATUS_FAILED,
+                ).count(),
+            }
 
-        total_attempts = MailingAttempt.objects.count()
-
-        successful_attempts = MailingAttempt.objects.filter(
-            status=MailingAttempt.STATUS_SUCCESS,
-        ).count()
-
-        failed_attempts = MailingAttempt.objects.filter(
-            status=MailingAttempt.STATUS_FAILED,
-        ).count()
+            cache.set(
+                cache_key,
+                statistics,
+                timeout=60,
+            )
 
         return render(
             request,
             "mailings/home.html",
-            {
-                "total_mailings": total_mailings,
-                "active_mailings": active_mailings,
-                "total_recipients": total_recipients,
-                "total_attempts": total_attempts,
-                "successful_attempts": successful_attempts,
-                "failed_attempts": failed_attempts,
-            },
+            statistics,
         )
 
 class MailingListView(LoginRequiredMixin, View):
@@ -348,6 +368,8 @@ class MailingCreateView(LoginRequiredMixin, View):
             mailing.owner = request.user
             mailing.save()
             form.save_m2m()
+
+            clear_home_statistics_cache()
 
             return redirect(
                 "mailing_detail",
@@ -425,6 +447,8 @@ class MailingUpdateView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
 
+            clear_home_statistics_cache()
+
             return redirect(
                 "mailing_detail",
                 pk=mailing.pk,
@@ -464,6 +488,8 @@ class MailingDeleteView(LoginRequiredMixin, View):
 
         mailing.delete()
 
+        clear_home_statistics_cache()
+
         return redirect("mailing_list")
 
 class MailingAttemptListView(LoginRequiredMixin, View):
@@ -498,6 +524,8 @@ class MailingDisableView(
 
         mailing.is_active = not mailing.is_active
         mailing.save(update_fields=["is_active"])
+
+        clear_home_statistics_cache()
 
         if mailing.is_active:
             messages.success(
